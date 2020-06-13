@@ -31,36 +31,87 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('12345-67890-09876-54321'));
+
+// function auth(req, res, next) {
+//   console.log(req.headers);
+
+//   var authHeader = req.headers.authorization;
+//   //console.log(authHeader) //Basic YWRtaW46cGFzc3dvcmQ=
+//   if (!authHeader) {
+//     var err = new Error("You are not authenticated!");
+//     res.setHeader('WWW-Authenticate', 'Basic');
+//     err.status = 401;
+//    return next(err)
+//   };
+
+//   var atest = new Buffer(authHeader.split(' ')[1], 'base64').toString();
+//   //console.log("check", atest); //admin:password
+
+//   var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(":") //Buffer enables splitting of value, 
+//   //the other params is base64 encoding. when it turns into an array the second element is where the auth
+//   // -username and password is located.
+//   var username = auth[0];
+//   var password = auth[1];
+
+//   if (username === 'admin' && password === 'password') {
+//     next(); //this will proceed
+//   }
+
+//   else {
+//     var err = new Error("You are not authenticated!");
+
+//     res.setHeader('WWW-Authenticate', 'Basic');
+//     err.status = 401;
+//    return next(err)    
+//   }
+// }
+
 
 function auth(req, res, next) {
-  console.log(req.headers);
+  console.log(req.signedCookies);
 
-  var authHeader = req.headers.authorization;
+  if (!req.signedCookies.user) { //if no signed cookies called user
+    var authHeader = req.headers.authorization; //this will prompt auth
+  
+    if (!authHeader) { //no auth is entered
+      var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+     return next(err)
+    };
+  
+   
+  
+    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
+    var username = auth[0];
+    var password = auth[1];
+  
+    if (username === 'admin' && password === 'password') {
+      res.cookie('user', 'admin', { signed: true })   //set cookies and takes name, value , option
+      next();
+    }
+  
+    else {
+      var err = new Error("You are not authenticated! Incorrect Keys");
+  
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+     return next(err)    
+    }
 
-  if (!authHeader) {
-    var err = new Error("You are not authenticated!");
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-   return next(err)
   }
-
-  var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(":") //Buffer enables splitting of value, the other params is 
-  //base64 encoding. when it turns into an array the second element is where the auth,username and password is located.
-  var username = auth[0];
-  var password = auth[1];
-
-  if (username === 'admin' && password === 'password') {
-    next(); //this will proceed
+  else {// if there is signed cookies
+    if (req.signedCookies.user === 'admin') {
+      next();
+    }
+    else {
+      var err = new Error("You are not authenticated! Incorrect Keys");
+      err.status = 401;
+      return next(err) 
+    }
   }
-
-  else {
-    var err = new Error("You are not authenticated!");
-    
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-   return next(err)    
-  }
+ 
 }
 
 app.use(auth);
