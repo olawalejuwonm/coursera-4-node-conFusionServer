@@ -123,48 +123,52 @@ app.use(session({
   secret: '12345-6789-09876-54321',
   saveUninitialized: false,
   resave: false,
-  store: new FileStore()
+  store: new FileStore() //this will create a folder named session in my working directory
 }));
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+
+
 function auth(req, res, next) {
   console.log(req.session);
 
   if (!req.session.user) { //if no signed cookies called user
-    var authHeader = req.headers.authorization; //this will prompt auth
+    // var authHeader = req.headers.authorization; //this will prompt auth
   
-    if (!authHeader) { //no auth is entered
+    // if (!authHeader) { //no auth is entered
       var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
-      res.setHeader('WWW-Authenticate', 'Basic');
+      // res.setHeader('WWW-Authenticate', 'Basic');
       err.status = 401;
      return next(err)
-    };
+   // };
   
    
   
-    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
-    var username = auth[0];
-    var password = auth[1];
+    // var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
+    // var username = auth[0];
+    // var password = auth[1];
   
-    if (username === 'admin' && password === 'password') {
-      req.session.user = 'admin' //note this as req and not res and takes name, value , option
-      next();
-    }
+    // if (username === 'admin' && password === 'password') {
+    //   req.session.user = 'admin' //note this as req and not res and takes name, value , option
+    //   next();
+    // }
   
-    else {
-      var err = new Error("You are not authenticated! Incorrect Keys");
+    // else {
+    //   var err = new Error("You are not authenticated! Incorrect Keys");
   
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-     return next(err)    
-    }
+    //   res.setHeader('WWW-Authenticate', 'Basic');
+    //   err.status = 401;
+    //  return next(err)    
+    // }
 
   }
   else {// if there is signed cookies
-    if (req.session.user === 'admin') {
+    if (req.session.user === 'authenticated') {
       next();
     }
     else {
       var err = new Error("You are not authenticated! Incorrect Keys");
-      err.status = 401;
+      err.status = 403;
       return next(err) 
     }
   }
@@ -175,8 +179,7 @@ app.use(auth);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 app.use('/dishes', dishRouter);
 app.use('/promotions', promoRouter);
 app.use('/leaders', leaderRouter);
