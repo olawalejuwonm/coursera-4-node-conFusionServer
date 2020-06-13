@@ -6,8 +6,6 @@ const promoRouter = express.Router();
 
 promoRouter.use(bodyParser.json());
 
-const Promotions = require('../models/promotions')
-
 promoRouter.route('/')
 .get( (req, res, next) => {
     Promotions.find({})
