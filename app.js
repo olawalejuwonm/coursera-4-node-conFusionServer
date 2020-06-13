@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var session = require('express-session');
+var FileStore = require('session-file-store')(session);
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -31,7 +33,8 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('12345-67890-09876-54321'));
+// app.use(cookieParser('12345-67890-09876-54321'));
+
 
 // function auth(req, res, next) {
 //   console.log(req.headers);
@@ -68,10 +71,64 @@ app.use(cookieParser('12345-67890-09876-54321'));
 // }
 
 
-function auth(req, res, next) {
-  console.log(req.signedCookies);
+// function auth(req, res, next) {
+//   console.log(req.signedCookies);
 
-  if (!req.signedCookies.user) { //if no signed cookies called user
+//   if (!req.signedCookies.user) { //if no signed cookies called user
+//     var authHeader = req.headers.authorization; //this will prompt auth
+  
+//     if (!authHeader) { //no auth is entered
+//       var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
+//       res.setHeader('WWW-Authenticate', 'Basic');
+//       err.status = 401;
+//      return next(err)
+//     };
+  
+   
+  
+//     var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
+//     var username = auth[0];
+//     var password = auth[1];
+  
+//     if (username === 'admin' && password === 'password') {
+//       res.cookie('user', 'admin', { signed: true })   //set cookies and takes name, value , option
+//       next();
+//     }
+  
+//     else {
+//       var err = new Error("You are not authenticated! Incorrect Keys");
+  
+//       res.setHeader('WWW-Authenticate', 'Basic');
+//       err.status = 401;
+//      return next(err)    
+//     }
+
+//   }
+//   else {// if there is signed cookies
+//     if (req.signedCookies.user === 'admin') {
+//       next();
+//     }
+//     else {
+//       var err = new Error("You are not authenticated! Incorrect Keys");
+//       err.status = 401;
+//       return next(err) 
+//     }
+//   }
+ 
+// }
+
+
+app.use(session({
+  name: 'session-id',
+  secret: '12345-6789-09876-54321',
+  saveUninitialized: false,
+  resave: false,
+  store: new FileStore()
+}));
+function auth(req, res, next) {
+  console.log(req.session);
+
+  if (!req.session.user) { //if no signed cookies called user
     var authHeader = req.headers.authorization; //this will prompt auth
   
     if (!authHeader) { //no auth is entered
@@ -88,7 +145,7 @@ function auth(req, res, next) {
     var password = auth[1];
   
     if (username === 'admin' && password === 'password') {
-      res.cookie('user', 'admin', { signed: true })   //set cookies and takes name, value , option
+      req.session.user = 'admin' //note this as req and not res and takes name, value , option
       next();
     }
   
@@ -102,7 +159,7 @@ function auth(req, res, next) {
 
   }
   else {// if there is signed cookies
-    if (req.signedCookies.user === 'admin') {
+    if (req.session.user === 'admin') {
       next();
     }
     else {
