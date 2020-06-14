@@ -6,7 +6,7 @@ var logger = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
-var authenticate = require('./authenticate');
+var authenticate = require('./authenticate'); //this imported the local strategy
 
 
 var indexRouter = require('./routes/index');
@@ -129,7 +129,7 @@ app.use(session({
   store: new FileStore() //this will create a folder named session in my working directory
 }));
 
-app.use(passport.initialize());
+app.use(passport.initialize());//start passport
 app.use(passport.session()); //will serialize user information and store it in the session
 
 app.use('/', indexRouter);
@@ -140,7 +140,7 @@ function auth(req, res, next) {
   console.log(req.session);
 
   if (!req.user) { //req.user will be loaded by passport session middleware automatically
-    var err = new Error("You are not authenticated!Kindly Signup");
+    var err = new Error("You are not authenticated!Kindly Login");
     err.status = 403;
     return next(err)
   }
