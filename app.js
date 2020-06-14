@@ -136,7 +136,8 @@ function auth(req, res, next) {
     // var authHeader = req.headers.authorization; //this will prompt auth
   
     // if (!authHeader) { //no auth is entered
-      var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
+      // var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
+      var err = new Error("You are not authenticated!Kindly Signup");
       // res.setHeader('WWW-Authenticate', 'Basic');
       err.status = 401;
      return next(err)
@@ -167,7 +168,7 @@ function auth(req, res, next) {
       next();
     }
     else {
-      var err = new Error("You are not authenticated! Incorrect Keys");
+      var err = new Error("You are not authenticated! Kindly Login");
       err.status = 403;
       return next(err) 
     }

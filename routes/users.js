@@ -14,7 +14,7 @@ router.post('/signup', (req, res, next) => {
   User.findOne({username: req.body.username})
   .then((user) => {
     if (user != null) { //if the user find is something or found in the database.Then the user already exist
-      var err = new Error('User ' + req.body.username + 'already exists');
+      var err = new Error('User ' + req.body.username + ' already exists');
       err.status = 403;
       next(err);
     }
@@ -80,7 +80,7 @@ router.post('/login', (req, res, next) => {
 });
 
 router.get('/logout', (req, res, next) => {
-  if (req.session) {
+  if (req.session.user) {
     req.session.destroy();
     res.clearCookie('session-id');
     res.redirect('/');
