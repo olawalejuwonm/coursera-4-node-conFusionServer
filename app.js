@@ -5,6 +5,9 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
+var passport = require('passport');
+var authenticate = require('./authenticate');
+
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -125,6 +128,10 @@ app.use(session({
   resave: false,
   store: new FileStore() //this will create a folder named session in my working directory
 }));
+
+app.use(passport.initialize());
+app.use(passport.session()); //will serialize user information and store it in the session
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
@@ -132,49 +139,64 @@ app.use('/users', usersRouter);
 function auth(req, res, next) {
   console.log(req.session);
 
-  if (!req.session.user) { //if no signed cookies called user
-    // var authHeader = req.headers.authorization; //this will prompt auth
+  if (!req.user) { //req.user will be loaded by passport session middleware automatically
+    var err = new Error("You are not authenticated!Kindly Signup");
+    err.status = 403;
+    return next(err)
+  }
+  else {
+      next();
+  }
+
+}
+
+
+// function auth(req, res, next) {
+//   console.log(req.session);
+
+//   if (!req.session.user) { //if no signed cookies called user
+//     // var authHeader = req.headers.authorization; //this will prompt auth
   
-    // if (!authHeader) { //no auth is entered
-      // var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
-      var err = new Error("You are not authenticated!Kindly Signup");
-      // res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-     return next(err)
-   // };
+//     // if (!authHeader) { //no auth is entered
+//       // var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
+//       var err = new Error("You are not authenticated!Kindly Signup");
+//       // res.setHeader('WWW-Authenticate', 'Basic');
+//       err.status = 401;
+//      return next(err)
+//    // };
   
    
   
-    // var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
-    // var username = auth[0];
-    // var password = auth[1];
+//     // var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
+//     // var username = auth[0];
+//     // var password = auth[1];
   
-    // if (username === 'admin' && password === 'password') {
-    //   req.session.user = 'admin' //note this as req and not res and takes name, value , option
-    //   next();
-    // }
+//     // if (username === 'admin' && password === 'password') {
+//     //   req.session.user = 'admin' //note this as req and not res and takes name, value , option
+//     //   next();
+//     // }
   
-    // else {
-    //   var err = new Error("You are not authenticated! Incorrect Keys");
+//     // else {
+//     //   var err = new Error("You are not authenticated! Incorrect Keys");
   
-    //   res.setHeader('WWW-Authenticate', 'Basic');
-    //   err.status = 401;
-    //  return next(err)    
-    // }
+//     //   res.setHeader('WWW-Authenticate', 'Basic');
+//     //   err.status = 401;
+//     //  return next(err)    
+//     // }
 
-  }
-  else {// if there is signed cookies
-    if (req.session.user === 'authenticated') {
-      next();
-    }
-    else {
-      var err = new Error("You are not authenticated! Kindly Login");
-      err.status = 403;
-      return next(err) 
-    }
-  }
+//   }
+//   else {// if there is signed cookies
+//     if (req.session.user === 'authenticated') {
+//       next();
+//     }
+//     else {
+//       var err = new Error("You are not authenticated! Kindly Login");
+//       err.status = 403;
+//       return next(err) 
+//     }
+//   }
  
-}
+// }
 
 app.use(auth);
 
