@@ -7,6 +7,7 @@ var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
 var authenticate = require('./authenticate'); //this imported the local strategy
+var config = require('./config');
 
 
 var indexRouter = require('./routes/index');
@@ -19,7 +20,8 @@ const mongoose = require('mongoose');
 
 const Dishes = require('./models/dishes');
 
-const url = 'mongodb://localhost:27017/conFusion';
+// const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
@@ -121,34 +123,34 @@ app.use(express.urlencoded({ extended: false }));
 // }
 
 
-app.use(session({
-  name: 'session-id',
-  secret: '12345-6789-09876-54321',
-  saveUninitialized: false,
-  resave: false,
-  store: new FileStore() //this will create a folder named session in my working directory
-}));
+// app.use(session({
+//   name: 'session-id',
+//   secret: '12345-6789-09876-54321',
+//   saveUninitialized: false,
+//   resave: false,
+//   store: new FileStore() //this will create a folder named session in my working directory
+// }));
 
 app.use(passport.initialize());//start passport
-app.use(passport.session()); //will serialize user information and store it in the session
+// app.use(passport.session()); //will serialize user information and store it in the session //this let passport use session for authentication
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 
-function auth(req, res, next) {
-  console.log(req.session);
+// function auth(req, res, next) {
+//   console.log(req.session);
 
-  if (!req.user) { //req.user will be loaded by passport session middleware automatically
-    var err = new Error("You are not authenticated!Kindly Login");
-    err.status = 403;
-    return next(err)
-  }
-  else {
-      next();
-  }
+//   if (!req.user) { //req.user will be loaded by passport session middleware automatically
+//     var err = new Error("You are not authenticated!Kindly Login");
+//     err.status = 403;
+//     return next(err)
+//   }
+//   else {
+//       next();
+//   }
 
-}
+// }
 
 
 // function auth(req, res, next) {
@@ -198,7 +200,7 @@ function auth(req, res, next) {
  
 // }
 
-app.use(auth);
+// app.use(auth);
 
 app.use(express.static(path.join(__dirname, 'public')));
 

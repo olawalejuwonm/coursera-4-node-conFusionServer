@@ -2,6 +2,8 @@ var express = require('express');
 const bodyParser = require('body-parser');
 const User = require('../models/users');
 const passport = require('passport')
+var authenticate = require('../authenticate.js')
+
 
 var router = express.Router();
 router.use(bodyParser.json())
@@ -108,15 +110,25 @@ router.post('/signup', (req, res, next) => {
 
 
 
-router.post('/login', passport.authenticate('local'), //passport.authenticate('local') will authenticate using exports.local 
-//defined in authenticate file using passport-local-mongoose to check automatically req.body and username if they exists
-//it expect username and password in json or else it gives bad request(400 status code)//so it handles error itself
-(req, res, next) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'app/json');
-  res.json({success: true, status: 'You are Successfully login!'})  
-});
+// router.post('/login', passport.authenticate('local'), //passport.authenticate('local') will authenticate using exports.local 
+// //defined in authenticate file using passport-local-mongoose to check automatically req.body and username if they exists
+// //it expect username and password in json or else it gives bad request(400 status code)//so it handles error itself
+// (req, res, next) => {
+//   res.statusCode = 200;
+//   res.setHeader('Content-Type', 'app/json');
+//   res.json({success: true, status: 'You are Successfully login!'})  
+// });
 
+
+router.post('/login', passport.authenticate('local'), (req, //passport.authenticate('local') will check if user already exists or not
+  res, next) => {
+
+    var token = authenticate.getToken({_id: req.user._id});  //passport.authenticate('local') will pass in req.user
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'app/json');
+    res.json({success: true, token: token, 
+      status: 'You are Successfully login!'})  
+});
 
 router.get('/logout', (req, res, next) => {
   if (req.session.passport) {
