@@ -16,8 +16,10 @@ const commentSchema = new Schema({
         required: true
     },
     author: {
-        type: String,
-        required: true
+        type: mongoose.Schema.Types.ObjectId,//an object id need to be gotten same as object id of the ref
+         //this will add(populate) all entries(that are public) in the model defined below
+        ref: 'User' //model name     //this will make author required //if mistaken it will give an error that
+        //Schema hasn't been registered for model
     },
     
 },
