@@ -17,7 +17,7 @@ var fs = require('fs');
 var port = normalizePort(process.env.PORT || '3000');
 //setting of port
 app.set('port', port); //port is 3000. 
-app.set('secPort',  port+443) //secure port will be 30443
+app.set('secPort',  port+443) //secure port will be 3443
 
 /**
  * Create HTTP server.
