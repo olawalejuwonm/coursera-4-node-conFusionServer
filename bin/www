@@ -36,8 +36,8 @@ server.on('listening', onListening);
 
 //just folow the procedure up here in creating secure server also
 var options = { //load ssl key and certificates
-  key: fs.readFileSync(__dirname + '/26598882_confusion.key'),
-  cert: fs.readFileSync(__dirname + '/26598882_confusion.cert')
+  key: fs.readFileSync(__dirname + '/31370573_confusion.key'),
+  cert: fs.readFileSync(__dirname + '/31370573_confusion.cert')
 }
 
 var secureServer = https.createServer(options, app); //app here is the app.js file

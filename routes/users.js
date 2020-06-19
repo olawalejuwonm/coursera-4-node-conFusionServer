@@ -1,14 +1,16 @@
 var express = require('express');
 const bodyParser = require('body-parser');
 const User = require('../models/users');
-const passport = require('passport')
-var authenticate = require('../authenticate.js')
+const passport = require('passport');
+const cors = require('./cors');
+var authenticate = require('../authenticate.js');
 
 
 var router = express.Router();
 router.use(bodyParser.json())
 /* GET users listing. */
-router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, 
+authenticate.verifyAdmin, (req, res, next) => { //corswithoption beacuse admin is only allowed here
   // res.send('respond with a resource');
   User.find({}).then((users, err) => {
     if (users) {
@@ -44,7 +46,7 @@ router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, ne
 //   .catch((err) => next(err))
 // })
 
-router.post('/signup', (req, res, next) => {
+router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(new User({username: req.body.username}),  //register passed in by the plugin passport-local-mongoose
   req.body.password, (err, user) => { //req.body.password will be password stored as hash&salt, while username is added 
     //to the database object keys
@@ -146,7 +148,7 @@ router.post('/signup', (req, res, next) => {
 //   res.json({success: true, status: 'You are Successfully login!'})  
 // });
 
-router.post('/login', passport.authenticate('local'),
+router.post('/login', cors.corsWithOptions, passport.authenticate('local'),
  (req, //passport.authenticate('local') will check if user already exists or not and handles the error
   res, next) => {
 
@@ -157,7 +159,7 @@ router.post('/login', passport.authenticate('local'),
       status: 'You are Successfully login!'})
 });
 
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions, (req, res, next) => {
   if (req.session.passport) {
     req.session.destroy();
     res.clearCookie('session-id');
@@ -170,7 +172,7 @@ router.get('/logout', (req, res, next) => {
   }
 })
 
-router.delete('/logout', passport.authenticate('local'), (req, res, next) => {
+router.delete('/logout', cors.corsWithOptions, passport.authenticate('local'), (req, res, next) => {
   User.remove({}) //remove all the dish
   .then((resp) => {
       res.statusCode = 200;
