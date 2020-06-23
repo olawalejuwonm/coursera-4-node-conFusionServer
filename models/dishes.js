@@ -59,7 +59,7 @@ const dishSchema = new Schema({
         type: Boolean,
         default: false
     },
-    comments: [ commentSchema ] //storing all documents about the dish in an array. Sub-document
+   // comments: [ commentSchema ] //storing all documents about the dish in an array. Sub-document
 },{
    timestamps: true 
 
