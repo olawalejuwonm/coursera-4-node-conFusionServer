@@ -7,7 +7,7 @@ var authenticate = require('../authenticate.js');
 
 
 var router = express.Router();
-router.use(bodyParser.json())
+router.use(bodyParser.json());
 /* GET users listing. */
 router.options('*', cors.corsWithOptions, (req, res) => { res.sendStatus(200);})
 router.get('/', cors.corsWithOptions, authenticate.verifyUser, 
@@ -21,7 +21,7 @@ authenticate.verifyAdmin, (req, res, next) => { //corswithoption beacuse admin i
     }
     else (
       next(err)
-    )
+    );
   })
   .catch((err) => next(err))
 });
@@ -59,10 +59,10 @@ router.post('/signup', cors.corsWithOptions, (req, res, next) => {
     else {
       // console.log(err) --> null
       if (req.body.firstname) {
-        user.firstname = req.body.firstname
+        user.firstname = req.body.firstname;
       }
       if (req.body.lastname) {
-        user.lastname = req.body.lastname
+        user.lastname = req.body.lastname;
       }
       user.save((err, user) => {
         if (err) {
@@ -76,13 +76,13 @@ router.post('/signup', cors.corsWithOptions, (req, res, next) => {
         //only checking if truly truly the user has been registered
           res.statusCode = 200;
           res.setHeader('Content-Type', 'app/json');
-          res.json({success: true, status: 'Registration Successful!', user: user})
+          res.json({success: true, status: 'Registration Successful!', user: user});
         });
         //The code below works as the one above in a better way without passport.authenticate('local')
         // res.statusCode = 200;
         // res.setHeader('Content-Type', 'app/json');
         // res.json({success: true, status: 'Registration Successful!', user: user})
-      })
+      });
       
     }
   }); //when dere is post to sign up new User process will begin but if the User exists it will be handled by 
@@ -161,14 +161,14 @@ router.post('/login', cors.corsWithOptions,
         res.statusCode = 401;
         res.setHeader('Content-Type', 'appication/json');
         res.json({success: false, 
-          status: 'Lofin Failed', err: info})
+          status: 'Lofin Failed', err: info});
       }
       req.logIn(user, (err) => { //req.logIn will be passed in by passport authentcate
         if (err) {
           res.statusCode = 401;
           res.setHeader('Content-Type', 'application/json');
           res.json({success: false, 
-            status: 'Login Failed', err: "Could not log in user"})
+            status: 'Login Failed', err: "Could not log in user"});
         }
         var token = authenticate.getToken({_id: req.user._id});  //passport.authenticate('local') will pass in req.user
         res.statusCode = 200;
@@ -186,11 +186,11 @@ router.get('/logout', cors.corsWithOptions, (req, res, next) => {
     res.redirect('/');
   }
   else {
-    var err = new Error("You are not logged in")
+    var err = new Error("You are not logged in");
     err.status = 403;
-    next(err)
+    next(err);
   }
-})
+});
 
 router.get('/facebook/token', passport.authenticate('facebook-token'), 
 (req, res) => {
