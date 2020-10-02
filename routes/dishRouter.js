@@ -1,20 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-
-const Dishes = require('../models/dishes');
-
 
 const dishRouter = express.Router();
 
 dishRouter.use(bodyParser.json())
 
 dishRouter.route('/')
-// .all((req,res,next) => { //app.all takes endpoint, callback. app.all is for all http verb(get,post,delete)
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'text/plain');
-//     next(); //this will continue to other call on '/dishes'
-// })
+.all((req,res,next) => { //app.all takes endpoint, callback. app.all is for all http verb(get,post,delete)
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    next(); //this will continue to other call on '/dishes'
+})
 .get( (req, res, next) => {
     res.end('Will send all dishes to you!')
     Dishes.find({})
@@ -92,5 +88,5 @@ dishRouter.route('/:dishId')
         res.json(resp);
     }, (err) => next(err))
     .catch((err) => next(err));
-});
+})
 module.exports = dishRouter
