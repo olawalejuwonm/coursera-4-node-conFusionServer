@@ -125,10 +125,11 @@ app.use(session({
   resave: false,
   store: new FileStore()
 }));
+
 function auth(req, res, next) {
   console.log(req.session);
 
-  if (!req.session.user) { //if no signed cookies called user
+  if (!req.session.user) { //if no session
     var authHeader = req.headers.authorization; //this will prompt auth
   
     if (!authHeader) { //no auth is entered
@@ -140,7 +141,7 @@ function auth(req, res, next) {
   
    
   
-    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
+    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":");
     var username = auth[0];
     var password = auth[1];
   
@@ -158,7 +159,7 @@ function auth(req, res, next) {
     }
 
   }
-  else {// if there is signed cookies
+  else {// if there is session
     if (req.session.user === 'admin') {
       next();
     }

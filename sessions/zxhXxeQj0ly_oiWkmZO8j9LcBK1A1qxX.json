@@ -5,6 +5,6 @@
         "httpOnly": true,
         "path": "/"
     },
-    "user": "admin",
-    "__lastAccess": 1592083732451
+    "user": null,
+    "__lastAccess": 1601749936597
 }
