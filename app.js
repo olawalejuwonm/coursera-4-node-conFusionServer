@@ -137,7 +137,7 @@ app.use('/users', usersRouter);
 
 
 function auth(req, res, next) {
-  console.log(req.session);
+  // console.log(req.session);
 
   if (!req.user) { //req.user will be loaded by passport session middleware automatically
     var err = new Error("You are not authenticated!Kindly Signup");
@@ -151,52 +151,7 @@ function auth(req, res, next) {
 }
 
 
-// function auth(req, res, next) {
-//   console.log(req.session);
 
-//   if (!req.session.user) { //if no signed cookies called user
-//     // var authHeader = req.headers.authorization; //this will prompt auth
-  
-//     // if (!authHeader) { //no auth is entered
-//       // var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
-//       var err = new Error("You are not authenticated!Kindly Signup");
-//       // res.setHeader('WWW-Authenticate', 'Basic');
-//       err.status = 401;
-//      return next(err)
-//    // };
-  
-   
-  
-//     // var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
-//     // var username = auth[0];
-//     // var password = auth[1];
-  
-//     // if (username === 'admin' && password === 'password') {
-//     //   req.session.user = 'admin' //note this as req and not res and takes name, value , option
-//     //   next();
-//     // }
-  
-//     // else {
-//     //   var err = new Error("You are not authenticated! Incorrect Keys");
-  
-//     //   res.setHeader('WWW-Authenticate', 'Basic');
-//     //   err.status = 401;
-//     //  return next(err)    
-//     // }
-
-//   }
-//   else {// if there is signed cookies
-//     if (req.session.user === 'authenticated') {
-//       next();
-//     }
-//     else {
-//       var err = new Error("You are not authenticated! Kindly Login");
-//       err.status = 403;
-//       return next(err) 
-//     }
-//   }
- 
-// }
 
 app.use(auth);
 

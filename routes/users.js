@@ -7,7 +7,10 @@ var router = express.Router();
 router.use(bodyParser.json())
 /* GET users listing. */
 router.get('/', (req, res, next) => {
-  res.send('respond with a resource');
+  User.remove({})
+    .then((users) => 
+    res.json(users))
+  // res.send('respond with a resource');
 });
 
 // router.post('/signup', (req, res, next) => {
@@ -32,7 +35,7 @@ router.get('/', (req, res, next) => {
 // })
 
 router.post('/signup', (req, res, next) => {
-  User.register(new User({username: req.body.username}),  //register passed in by the plugin passport-local-mongoose
+  User.register(new User({username: req.body.username}),  //register passed in by the plugin passport-local-mongoose. takes user, password, callback
   req.body.password, (err, user) => {
     if (err) { 
       res.statusCode = 500;
@@ -40,11 +43,18 @@ router.post('/signup', (req, res, next) => {
       res.json({err: err});
     }
     else {
-      passport.authenticate('local')(req, res, () => {
+      console.log("sign up", user);
+      if (user.username === req.body.username) {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'app/json');
         res.json({success: true, status: 'Registration Successful!'})
-      });
+      }
+      // passport.authenticate('local')(req, res, () => { //this will send cookie immediately
+      //   console.log(user)
+      //   res.statusCode = 200;
+      //   res.setHeader('Content-Type', 'app/json');
+      //   res.json({success: true, status: 'Registration Successful!'})
+      // });
     }
   });
 });
@@ -101,14 +111,17 @@ router.post('/signup', (req, res, next) => {
 
 
 router.post('/login', passport.authenticate('local'), //passport.authenticate('local') will authenticate using Local Str
-(req, res, next) => {
+(req, res, next) => { //the third function will only be called if those succeed
   res.statusCode = 200;
+  req.session.cookie.expires = Date.now() + 20000
+  req.session.userDetails = req.user;
   res.setHeader('Content-Type', 'app/json');
   res.json({success: true, status: 'You are Successfully login!'})  
 });
 
 
 router.get('/logout', (req, res, next) => {
+  console.log("logging out", req.session)
   if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
