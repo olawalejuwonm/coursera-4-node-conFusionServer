@@ -7,7 +7,18 @@ var router = express.Router();
 router.use(bodyParser.json())
 /* GET users listing. */
 router.get('/', (req, res, next) => {
-  res.send('respond with a resource');
+  // console.log(req.session, req.signedCookies)
+
+  User.find({})
+  .then((users) => {
+    res.json(users)
+    User.remove({}).then((res) => console.log(res))
+  })
+  .catch((err) => {
+    // res.send(err);
+    next(err);
+  })
+  // res.send('respond with a resource');
 });
 
 router.post('/signup', (req, res, next) => {
@@ -25,7 +36,7 @@ router.post('/signup', (req, res, next) => {
   })
   .then((user) => {
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'app/json');
+    res.setHeader('Content-Type', 'application/json');
     res.json({status: 'Registration Successful!', user: user})
   }, (err) => next(err))
   .catch((err) => next(err))
@@ -62,6 +73,7 @@ router.post('/login', (req, res, next) => {
 
       else if (user.username === username && user.password === password) {
         req.session.user = "authenticated" //note this as req and not res and takes name, value , option
+        req.session.name = user.username;
         res.statusCode = 200;
         res.setHeader('Content-Type', 'text/plain');
         res.end("You are authenticated!.")
