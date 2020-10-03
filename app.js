@@ -31,7 +31,7 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('12345-67890-09876-54321'));
+app.use(cookieParser('12345-67890-09876-54321')); //very important for signed cookies
 
 // function auth(req, res, next) {
 //   console.log(req.headers);
@@ -71,7 +71,7 @@ app.use(cookieParser('12345-67890-09876-54321'));
 function auth(req, res, next) {
   console.log(req.signedCookies);
 
-  if (!req.signedCookies.user) { //if no signed cookies called user
+  if (!req.signedCookies.user) { //if no signed cookies  prompt user for auth and assign cookie
     var authHeader = req.headers.authorization; //this will prompt auth
   
     if (!authHeader) { //no auth is entered
@@ -92,7 +92,7 @@ function auth(req, res, next) {
       next();
     }
   
-    else {
+    else { //auth entered but incorrect
       var err = new Error("You are not authenticated! Incorrect Keys");
   
       res.setHeader('WWW-Authenticate', 'Basic');
@@ -103,10 +103,13 @@ function auth(req, res, next) {
   }
   else {// if there is signed cookies
     if (req.signedCookies.user === 'admin') {
+      // res.clearCookie('user')
       next();
     }
     else {
-      var err = new Error("You are not authenticated! Incorrect Keys");
+      // console.log("incoreect cookie", req.signedCookies);
+      res.clearCookie("user")
+      var err = new Error("You are not authenticated! Incorrect Cookie");
       err.status = 401;
       return next(err) 
     }
