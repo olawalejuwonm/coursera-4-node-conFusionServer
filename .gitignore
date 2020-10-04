@@ -1,2 +1,4 @@
-/MongoDb
-/node_modules
+node_modules
+MongoDb
+data
+Migrant

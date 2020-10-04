@@ -10,8 +10,7 @@ const config = require('./config.js');
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()))//authenticate will be passed in by passpot-local-mongoose.
 //this will also have req.user passed in, so it will expect the username and password to be in json format in the request
-//this will be called as passport.authenticate("local")
-passport.serializeUser(User.serializeUser());
+ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser())//Registers a function used to deserialize user objects out of the session
 
 exports.getToken = function(user) {
