@@ -38,11 +38,11 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser('12345-67890-09876-54321'));
+// app.use(cookieParser('12345-67890-09876-54321')); 1 -> for session
 
 
 
-// app.use(session({
+// app.use(session({                                2 -> for session
 //   name: 'session-id',
 //   secret: '12345-6789-09876-54321',
 //   saveUninitialized: false,
@@ -52,6 +52,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize());//start passport
 // app.use(passport.session()); //will serialize user information and store it in the session //this let passport use session for authentication
+//                                                    3 -> for session
+
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
