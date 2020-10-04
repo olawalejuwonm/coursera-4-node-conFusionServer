@@ -38,11 +38,11 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser('12345-67890-09876-54321')); 1 -> for session
+app.use(cookieParser(config.secretKey)); //1 -> for session
 
 
 
-// app.use(session({                                2 -> for session
+// app.use(session({                               // 2 -> for session
 //   name: 'session-id',
 //   secret: '12345-6789-09876-54321',
 //   saveUninitialized: false,

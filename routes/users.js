@@ -2,7 +2,8 @@ var express = require('express');
 const bodyParser = require('body-parser');
 const User = require('../models/users');
 const passport = require('passport')
-var authenticate = require('../authenticate.js')
+var authenticate = require('../authenticate.js');
+const config = require('../config');
 
 
 var router = express.Router();
@@ -118,11 +119,27 @@ router.post('/signup', (req, res, next) => {
 //   res.setHeader('Content-Type', 'app/json');
 //   res.json({success: true, status: 'You are Successfully login!'})  
 // });
-const CheckLogin = (req, res, next) => {
+// const CheckLogin = (req, res, next) => { //checklogin for session
+//   // console.log(req.body);
+//   // console.log(req.session);
+//   // console.log(req.user);
+//   const username  = req.user ? req.user.username : null;
+
+//   if (req.body.username === username) {
+//     return res.json({success: false, message: "You are logged in already"});
+//   }
+//   else {
+//     console.log("nexting..")
+//     next();
+//   }
+// }
+
+const CheckLogin = (req, res, next) => { //for cookie
   // console.log(req.body);
+  console.log(req.signedCookies)
   // console.log(req.session);
   // console.log(req.user);
-  const username  = req.user ? req.user.username : null;
+  const username  = Object.keys(req.signedCookies).length ? req.signedCookies.user : null;
 
   if (req.body.username === username) {
     return res.json({success: false, message: "You are logged in already"});
@@ -132,28 +149,29 @@ const CheckLogin = (req, res, next) => {
     next();
   }
 }
-
 router.post('/login', CheckLogin, passport.authenticate('local'), (req, //passport.authenticate('local') will check if user already exists or not
   res, next) => {
     // console.log(req.user);
     var token = authenticate.getToken({_id: req.user._id});  //passport.authenticate('local') will pass in req.user
     res.statusCode = 200;
+    res.cookie('user', req.user.username, { signed: true, expires: config.cookieExpiry}) //for cookies
     res.setHeader('Content-Type', 'app/json');
     res.json({success: true, token: token, 
       status: 'You are Successfully login!'})  
 });
 
 router.get('/logout', (req, res, next) => {
-  console.log("logging out", req.session)
-  if (req.session) {
-    req.session.destroy();
+  
+  console.log("logging out",Object.keys(req.signedCookies).length, req.session)
+  if (Object.keys(req.signedCookies).length !== 0 || req.session) { //for cookie
+    res.clearCookie('user');
     res.clearCookie('session-id');
     res.redirect('/');
   }
   else {
-    var err = new Error("You are not logged in")
+    var err = new Error("You are not logged in");
     err.status = 403;
-    next(err)
+    next(err);
   }
 })
 

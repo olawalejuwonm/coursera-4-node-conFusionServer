@@ -48,3 +48,14 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts, //strategy for passport
     }));
 
 exports.verifyUser = passport.authenticate('jwt', {session: false}) //session not needed for token based authentication, first params is the strategy
+
+// exports.verifyUser = (req, res, next) => { //using cookies
+//     const auth = Object.keys(req.signedCookies).length ? req.signedCookies.user : null;
+//     if (auth) {
+//         next()
+//     }
+//     else {
+//         const err = new Error("You are not authenticated");
+//         next(err)
+//     }
+// }
