@@ -134,12 +134,28 @@ router.post('/signup', (req, res, next) => {
 //   }
 // }
 
-const CheckLogin = (req, res, next) => { //for cookie
+// const CheckLogin = (req, res, next) => { //for cookie
+//   // console.log(req.body);
+//   // console.log(req.signedCookies)
+//   // console.log(req.session);
+//   // console.log(req.user);
+//   const username  = Object.keys(req.signedCookies).length ? req.signedCookies.user : null;
+
+//   if (req.body.username === username) {
+//     return res.json({success: false, message: "You are logged in already"});
+//   }
+//   else {
+//     console.log("nexting..")
+//     next();
+//   }
+// }
+
+const CheckLogin = (req, res, next) => { //for jwt
   // console.log(req.body);
-  console.log(req.signedCookies)
+  // console.log(req.signedCookies)
   // console.log(req.session);
   // console.log(req.user);
-  const username  = Object.keys(req.signedCookies).length ? req.signedCookies.user : null;
+  const username  = req.user ? req.user.username : null;
 
   if (req.body.username === username) {
     return res.json({success: false, message: "You are logged in already"});
@@ -154,7 +170,7 @@ router.post('/login', CheckLogin, passport.authenticate('local'), (req, //passpo
     // console.log(req.user);
     var token = authenticate.getToken({_id: req.user._id});  //passport.authenticate('local') will pass in req.user
     res.statusCode = 200;
-    res.cookie('user', req.user.username, { signed: true, expires: config.cookieExpiry}) //for cookies
+    //res.cookie('user', req.user.username, { signed: true, expires: config.cookieExpiry}) //for cookies
     res.setHeader('Content-Type', 'app/json');
     res.json({success: true, token: token, 
       status: 'You are Successfully login!'})  
@@ -162,7 +178,7 @@ router.post('/login', CheckLogin, passport.authenticate('local'), (req, //passpo
 
 router.get('/logout', (req, res, next) => {
   
-  console.log("logging out",Object.keys(req.signedCookies).length, req.session)
+  // console.log("logging out",Object.keys(req.signedCookies).length, req.session)
   if (Object.keys(req.signedCookies).length !== 0 || req.session) { //for cookie
     res.clearCookie('user');
     res.clearCookie('session-id');
