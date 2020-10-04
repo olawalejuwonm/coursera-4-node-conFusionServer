@@ -107,17 +107,32 @@ router.post('/signup', (req, res, next) => {
     
 //   }
 // });
+const CheckLogin = (req, res, next) => {
+  console.log(req.body)
+  // console.log(req.session);
+  // console.log(req.user);
+  const username  = req.user ? req.user.username : null;
+
+  if (req.body.username === username) {
+    return res.json({success: false, message: "You are logged in already"});
+  }
+  else {
+    // console.log("nexting..")
+    next();
+  }
+}
 
 
-
-router.post('/login', passport.authenticate('local'), //passport.authenticate('local') will authenticate using Local Str
+router.post('/login', CheckLogin, 
+passport.authenticate('local'), //passport.authenticate('local') will authenticate using Local Str
 (req, res, next) => { //the third function will only be called if those succeed
   res.statusCode = 200;
-  req.session.cookie.expires = Date.now() + 20000
+  req.session.cookie.expires = Date.now() + 200;
   req.session.userDetails = req.user;
   res.setHeader('Content-Type', 'app/json');
   res.json({success: true, status: 'You are Successfully login!'})  
-});
+}
+);
 
 
 router.get('/logout', (req, res, next) => {

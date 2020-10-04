@@ -6,7 +6,7 @@ var logger = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
 var passport = require('passport');
-var authenticate = require('./authenticate');
+var authenticate = require('./authenticate'); //this line is very important as it imports authentication strategy
 
 
 var indexRouter = require('./routes/index');
@@ -142,7 +142,7 @@ function auth(req, res, next) {
   if (!req.user) { //req.user will be loaded by passport session middleware automatically
     var err = new Error("You are not authenticated!Kindly Signup");
     err.status = 403;
-    return next(err)
+    return next(err);
   }
   else {
       next();
