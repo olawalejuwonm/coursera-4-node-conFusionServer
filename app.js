@@ -41,87 +41,6 @@ app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser('12345-67890-09876-54321'));
 
 
-// function auth(req, res, next) {
-//   console.log(req.headers);
-
-//   var authHeader = req.headers.authorization;
-//   //console.log(authHeader) //Basic YWRtaW46cGFzc3dvcmQ=
-//   if (!authHeader) {
-//     var err = new Error("You are not authenticated!");
-//     res.setHeader('WWW-Authenticate', 'Basic');
-//     err.status = 401;
-//    return next(err)
-//   };
-
-//   var atest = new Buffer(authHeader.split(' ')[1], 'base64').toString();
-//   //console.log("check", atest); //admin:password
-
-//   var auth = new Buffer(authHeader.split(' ')[1], 'base64').toString().split(":") //Buffer enables splitting of value, 
-//   //the other params is base64 encoding. when it turns into an array the second element is where the auth
-//   // -username and password is located.
-//   var username = auth[0];
-//   var password = auth[1];
-
-//   if (username === 'admin' && password === 'password') {
-//     next(); //this will proceed
-//   }
-
-//   else {
-//     var err = new Error("You are not authenticated!");
-
-//     res.setHeader('WWW-Authenticate', 'Basic');
-//     err.status = 401;
-//    return next(err)    
-//   }
-// }
-
-
-// function auth(req, res, next) {
-//   console.log(req.signedCookies);
-
-//   if (!req.signedCookies.user) { //if no signed cookies called user
-//     var authHeader = req.headers.authorization; //this will prompt auth
-  
-//     if (!authHeader) { //no auth is entered
-//       var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
-//       res.setHeader('WWW-Authenticate', 'Basic');
-//       err.status = 401;
-//      return next(err)
-//     };
-  
-   
-  
-//     var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
-//     var username = auth[0];
-//     var password = auth[1];
-  
-//     if (username === 'admin' && password === 'password') {
-//       res.cookie('user', 'admin', { signed: true })   //set cookies and takes name, value , option
-//       next();
-//     }
-  
-//     else {
-//       var err = new Error("You are not authenticated! Incorrect Keys");
-  
-//       res.setHeader('WWW-Authenticate', 'Basic');
-//       err.status = 401;
-//      return next(err)    
-//     }
-
-//   }
-//   else {// if there is signed cookies
-//     if (req.signedCookies.user === 'admin') {
-//       next();
-//     }
-//     else {
-//       var err = new Error("You are not authenticated! Incorrect Keys");
-//       err.status = 401;
-//       return next(err) 
-//     }
-//   }
- 
-// }
-
 
 // app.use(session({
 //   name: 'session-id',
@@ -138,69 +57,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 
-// function auth(req, res, next) {
-//   console.log(req.session);
-
-//   if (!req.user) { //req.user will be loaded by passport session middleware automatically
-//     var err = new Error("You are not authenticated!Kindly Login");
-//     err.status = 403;
-//     return next(err)
-//   }
-//   else {
-//       next();
-//   }
-
-// }
 
 
-// function auth(req, res, next) {
-//   console.log(req.session);
-
-//   if (!req.session.user) { //if no signed cookies called user
-//     // var authHeader = req.headers.authorization; //this will prompt auth
-  
-//     // if (!authHeader) { //no auth is entered
-//       // var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
-//       var err = new Error("You are not authenticated!Kindly Signup");
-//       // res.setHeader('WWW-Authenticate', 'Basic');
-//       err.status = 401;
-//      return next(err)
-//    // };
-  
-   
-  
-//     // var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
-//     // var username = auth[0];
-//     // var password = auth[1];
-  
-//     // if (username === 'admin' && password === 'password') {
-//     //   req.session.user = 'admin' //note this as req and not res and takes name, value , option
-//     //   next();
-//     // }
-  
-//     // else {
-//     //   var err = new Error("You are not authenticated! Incorrect Keys");
-  
-//     //   res.setHeader('WWW-Authenticate', 'Basic');
-//     //   err.status = 401;
-//     //  return next(err)    
-//     // }
-
-//   }
-//   else {// if there is signed cookies
-//     if (req.session.user === 'authenticated') {
-//       next();
-//     }
-//     else {
-//       var err = new Error("You are not authenticated! Kindly Login");
-//       err.status = 403;
-//       return next(err) 
-//     }
-//   }
- 
-// }
-
-// app.use(auth);
 
 app.use(express.static(path.join(__dirname, 'public')));
 

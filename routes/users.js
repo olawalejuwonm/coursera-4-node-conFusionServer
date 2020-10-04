@@ -118,7 +118,20 @@ router.post('/signup', (req, res, next) => {
 //   res.setHeader('Content-Type', 'app/json');
 //   res.json({success: true, status: 'You are Successfully login!'})  
 // });
+const CheckLogin = (req, res, next) => {
+  console.log(req.body);
+  // console.log(req.session);
+  // console.log(req.user);
+  const username  = req.user ? req.user.username : null;
 
+  if (req.body.username === username) {
+    return res.json({success: false, message: "You are logged in already"});
+  }
+  else {
+    // console.log("nexting..")
+    next();
+  }
+}
 
 router.post('/login', passport.authenticate('local'), (req, //passport.authenticate('local') will check if user already exists or not
   res, next) => {
@@ -131,7 +144,7 @@ router.post('/login', passport.authenticate('local'), (req, //passport.authentic
 });
 
 router.get('/logout', (req, res, next) => {
-  if (req.session.passport) {
+  if (req.session) {
     req.session.destroy();
     res.clearCookie('session-id');
     res.redirect('/');
