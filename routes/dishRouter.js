@@ -162,7 +162,7 @@ dishRouter.route('/:dishId/comments')
                 res.json(dish);
             }, (err) => next(err));
         }
-        else {
+        else {  
             err = new Error('Dish' + req.params.dishId + ' not found');
             err.status = 404;
             return next(err);
