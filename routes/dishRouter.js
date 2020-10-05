@@ -25,7 +25,7 @@ dishRouter.route('/')
     }, (err) => next(err))
     .catch((err) => next(err)); //this will send the err to overall error catch
 })
-.post(authenticate.verifyUser, (req, res, next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Dishes.create(req.body)
     .then((dish) => {
         console.log('Dish Created', dish);
@@ -35,11 +35,11 @@ dishRouter.route('/')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.put(authenticate.verifyUser, (req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
     res.end('Put operation not supported on /dishes')   
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Dishes.remove({}) //remove all the dish
     .then((resp) => {
         res.statusCode = 200;
@@ -61,11 +61,11 @@ dishRouter.route('/:dishId')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.post(authenticate.verifyUser, (req, res, next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
     res.end('Post operation not supported on /dishes/' + req.params.dishId)    // req.body will be body of request parsed by bodyParser
 })
-.put(authenticate.verifyUser, (req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     // res.write("Updating the dish: " + req.params.dishId + '\n') // res. write is used for writing a line to the reply message
     // res.end("Will update the dish:" + req.body.name + 'with details:' + req.body.description);
     Dishes.findByIdAndUpdate(req.params.dishId, {
@@ -78,7 +78,7 @@ dishRouter.route('/:dishId')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Dishes.findByIdAndRemove(req.params.dishId)
     .then((resp) => {
         res.statusCode = 200;
@@ -148,7 +148,7 @@ dishRouter.route('/:dishId/comments')
     res.end('Put operation not supported on /dishes' +
      req.params.dishId + '/comments' );
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Dishes.findById(req.params.dishId)
     .then((dish) => {
         if (dish != null) {
@@ -205,12 +205,20 @@ dishRouter.route('/:dishId/comments/:commentId')
 .put(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
     .then((dish) => {
-        if (dish != null && dish.comments.id(req.params.commentId) != null) {
+        const comment = dish.comments.id(req.params.commentId);
+        console.log(typeof req.user._id, typeof comment.author);
+        console.log(comment);
+        if (dish != null &&  comment != null) {
+            if (req.user._id !== comment.author) {
+                const err = new Error("You Are Not Authorized To Modify This Comment!");
+                err.status = 403;
+                return next(err);
+            }
             if (req.body.rating) {
                 dish.comments.id(req.params.commentId).rating = req.body.rating;
             }
             if (req.body.comment) {
-                dish.comments.id(req.params.commentId).comment = req.body.comment
+                dish.comments.id(req.params.commentId).comment = req.body.comment;
             }
             dish.save()
             .then((dish) => {
@@ -232,7 +240,7 @@ dishRouter.route('/:dishId/comments/:commentId')
         else {
             err = new Error('Comment' + req.params.commentId + ' not found');
             err.status = 404;
-            return next(err);            
+            return next(err);
         }
     }, (err) => next(err))
     .catch((err) => next(err));
@@ -240,7 +248,13 @@ dishRouter.route('/:dishId/comments/:commentId')
 .delete(authenticate.verifyUser, (req, res, next) => {
     Dishes.findById(req.params.dishId)
     .then((dish) => {
-        if (dish != null && dish.comments.id(req.params.commentId) != null) {
+        const comment = dish.comments.id(req.params.commentId);
+        if (dish != null && comment != null) {
+            if (req.user._id !== comment.author) {
+                const err = new Error("You Are Not Authorized To Delete This Comment!");
+                err.status = 403;
+                return next(err);
+            }
             dish.comments.id(req.params.commentId).remove();
             dish.save()
             .then((dish) => {

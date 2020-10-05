@@ -43,9 +43,21 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts, //strategy for passport
             }
             else {
                 console.log('Jwt Neither None ')
-                return done(null, false); //no error and user dosent exists. So you can create a user account here 
+                return done(null, false, "not registerd"); //no error and user dosent exists. So you can create a user account here 
             }
         });
     }));
 
-exports.verifyUser = passport.authenticate('jwt', {session: false}) //session not needed for token based authentication, first params is the strategy
+exports.verifyUser = passport.authenticate('jwt', {session: false}); //session not needed for token based authentication, first params is the strategy
+exports.verifyAdmin = (req, res, next) => {
+    const id = req.user._id
+    User.findById(id)
+        .then((user) => {
+            if (user.admin) {
+                return next()
+            }
+            const err = new Error("Unauthorized To Perform This Operation")
+            err.status = 403;
+            next(err)
+        })
+}

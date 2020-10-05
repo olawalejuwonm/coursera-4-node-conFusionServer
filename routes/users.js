@@ -8,7 +8,7 @@ var authenticate = require('../authenticate.js')
 var router = express.Router();
 router.use(bodyParser.json())
 /* GET users listing. */
-router.get('/', (req, res, next) => {
+router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   res.send('respond with a resource');
 });
 
@@ -135,7 +135,19 @@ router.post('/signup', (req, res, next) => {
 //   res.json({success: true, status: 'You are Successfully login!'})  
 // });
 
-router.post('/login', passport.authenticate('local'),
+const userExist = (req, res, next) => {
+  User.findOne({ username: req.body.username })
+    .then((user) => {
+      if (user) {
+        return next();
+      }
+      const err = new Error("User Dosen't Exist");
+      err.status = 417;
+      next(err);
+    })
+}
+
+router.post('/login', userExist, passport.authenticate('local'),
   (req, //passport.authenticate('local') will check if user already exists or not and handles the error
     res, next) => {
 
