@@ -209,7 +209,7 @@ dishRouter.route('/:dishId/comments/:commentId')
         console.log(typeof req.user._id, typeof comment.author);
         console.log(comment);
         if (dish != null &&  comment != null) {
-            if (req.user._id !== comment.author) {
+            if (!req.user._id.equals(comment.author)) {
                 const err = new Error("You Are Not Authorized To Modify This Comment!");
                 err.status = 403;
                 return next(err);
@@ -250,7 +250,7 @@ dishRouter.route('/:dishId/comments/:commentId')
     .then((dish) => {
         const comment = dish.comments.id(req.params.commentId);
         if (dish != null && comment != null) {
-            if (req.user._id !== comment.author) {
+            if (!req.user._id.equals(comment.author)) {
                 const err = new Error("You Are Not Authorized To Delete This Comment!");
                 err.status = 403;
                 return next(err);
