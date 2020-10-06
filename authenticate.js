@@ -52,7 +52,7 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts, //strategy for passport
         });
     }));
 
-exports.verifyUser = passport.authenticate('local', { session: false }); //session not needed for token based authentication, first params is the strategy
+exports.verifyUser = passport.authenticate('jwt', { session: false }); //session not needed for token based authentication, first params is the strategy
 exports.verifyAdmin = (req, res, next) => {
     // console.log(req.user);
     if (req.user.admin) {
