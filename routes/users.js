@@ -76,7 +76,7 @@ const userExist = (req, res, next) => {
 router.post('/login', cors.corsWithOptions, userExist, passport.authenticate('local'),
   (req, //passport.authenticate('local') will check if user already exists or not and handles the error
     res, next) => {
-
+    console.log("req user of local", req.user)
     var token = authenticate.getToken({ _id: req.user._id });  //passport.authenticate('local') will pass in req.user
     res.statusCode = 200;
     res.setHeader('Content-Type', 'app/json');
@@ -109,3 +109,15 @@ router.delete('/logout', passport.authenticate('local'), (req, res, next) => {
     .catch((err) => next(err));
 })
 module.exports = router;
+
+router.get('/facebook/token', authenticate.verifyFacebook, 
+(req, res) => {
+  console.log("the req user of facebook", req.user)
+  if (req.user) {
+    const token = authenticate.getToken({_id: req.user._id}); //after when facebook access token has been generated, json web token will be genrated too and will be use subsequently 
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'app/json');
+    res.json({success: true, token: token, 
+      status: 'You are Successfully login!'})
+  }
+})
