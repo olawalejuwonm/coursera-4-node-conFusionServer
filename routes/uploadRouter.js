@@ -2,14 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const authenticate = require('../authenticate')
 const multer = require('multer');
+const cors = require('./cors');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => { //cb is callback
-    cb(null, 'public/images'); //first param is error
+    cb(null, 'public/images'); //first param is error, note the destination must exist
   },
   filename: (req, file, cb) => {
       cb(null, file.originalname) //file.originalname gives you the original name of a file and not a string
-  }
+  }  
 });
 
 const imageFileFilter = (req, file, cb) => {
@@ -27,21 +28,21 @@ const uploadRouter = express.Router();
 uploadRouter.use(bodyParser.json());
 
 uploadRouter.route('/')
-.get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.get(cors.cors, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
     res.end('GET operation not supported on /imageUpload')   
 })
-.post(authenticate.verifyUser, authenticate.verifyAdmin,
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin,
 upload.single('imageFile'), (req, res) => { //upload.single('imageFile') allow to upload a single file, the name imageFile will be in the multipart
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.json(req.file); 
 })
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
     res.end('PUT operation not supported on /imageUpload')   
 })
-.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     res.statusCode = 403;
     res.end('DELETE operation not supported on /imageUpload')   
 })

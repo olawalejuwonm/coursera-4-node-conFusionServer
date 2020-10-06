@@ -56,7 +56,7 @@ exports.verifyAdmin = (req, res, next) => {
             if (user.admin) {
                 return next()
             }
-            const err = new Error("Unauthorized To Perform This Operation")
+            const err = new Error("Unauthorized To Perform " + req.method + " Operation")
             err.status = 403;
             next(err)
         })

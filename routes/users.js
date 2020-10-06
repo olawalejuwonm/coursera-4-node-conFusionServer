@@ -2,13 +2,13 @@ var express = require('express');
 const bodyParser = require('body-parser');
 const User = require('../models/users');
 const passport = require('passport')
-var authenticate = require('../authenticate.js')
+const authenticate = require('../authenticate.js')
+const cors = require('./cors');
 
-
-var router = express.Router();
+const router = express.Router();
 router.use(bodyParser.json())
 /* GET users listing. */
-router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   User.find({})
   .then((users) => {
     return res.status(200).json(
@@ -16,28 +16,7 @@ router.get('/', authenticate.verifyUser, authenticate.verifyAdmin, (req, res, ne
   })
 });
 
-// router.post('/signup', (req, res, next) => {
-//   User.findOne({username: req.body.username})
-//   .then((user) => {
-//     if (user != null) { //if the user find is something or found in the database.Then the user already exist
-//       var err = new Error('User ' + req.body.username + ' already exists');
-//       err.status = 403;
-//       next(err);
-//     }
-//     else {
-//       return User.create({username: req.body.username,
-//       password: req.body.password})
-//     }
-//   })
-//   .then((user) => {
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'app/json');
-//     res.json({status: 'Registration Successful!', user: user})
-//   }, (err) => next(err))
-//   .catch((err) => next(err))
-// })
-
-router.post('/signup', (req, res, next) => {
+router.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(new User({ username: req.body.username }),  //register passed in by the plugin passport-local-mongoose
     req.body.password, (err, user) => { //req.body.password will be password stored as hash&salt, while username is added 
       //to the database object keys
@@ -80,64 +59,7 @@ router.post('/signup', (req, res, next) => {
 });
 
 
-// router.post('/login', (req, res, next) => {
-//   if (!req.session.user) { //if no signed cookies called user
-//     var authHeader = req.headers.authorization; //this will prompt auth
 
-//     if (!authHeader) { //no auth is entered
-//       var err = new Error("You are not authenticated!Kindly Enter Auth Keys");
-//       res.setHeader('WWW-Authenticate', 'Basic');
-//       err.status = 401;
-//      return next(err)
-//     };
-
-
-
-//     var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(":")
-//     var username = auth[0];
-//     var password = auth[1];
-//     User.findOne({username: username})
-//     .then((user) => {
-//       if (user === null ) {
-//         var err = new Error("User " + username + ' does not exist');
-//         err.status = 403;
-//         return next(err);
-//       }
-//       else if (user.password !== password) {
-//         var err = new Error("Your password is incorrect!");
-//         err.status = 403;
-//         return next(err);
-//       }
-
-//       else if (user.username === username && user.password === password) {
-//         req.session.user = "authenticated" //note this as req and not res and takes name, value , option
-//         res.statusCode = 200;
-//         res.setHeader('Content-Type', 'text/plain');
-//         res.end("You are authenticated!.")
-//       }
-
-
-//     })
-//     .catch((err) => next(err))
-//   }
-//   else {// if there is signed cookies user is already logged in
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'text/plain');
-//     res.end("You are already authenticated!")
-
-//   }
-// });
-
-
-
-// router.post('/login', passport.authenticate('local'), //passport.authenticate('local') will authenticate using exports.local 
-// //defined in authenticate file using passport-local-mongoose to check automatically req.body and username if they exists
-// //it expect username and password in json or else it gives bad request(400 status code)//so it handles error itself
-// (req, res, next) => {
-//   res.statusCode = 200;
-//   res.setHeader('Content-Type', 'app/json');
-//   res.json({success: true, status: 'You are Successfully login!'})  
-// });
 
 const userExist = (req, res, next) => {
   User.findOne({ username: req.body.username })
@@ -151,7 +73,7 @@ const userExist = (req, res, next) => {
     })
 }
 
-router.post('/login', userExist, passport.authenticate('local'),
+router.post('/login', cors.corsWithOptions, userExist, passport.authenticate('local'),
   (req, //passport.authenticate('local') will check if user already exists or not and handles the error
     res, next) => {
 
@@ -164,7 +86,7 @@ router.post('/login', userExist, passport.authenticate('local'),
     })
   });
 
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors.corsWithOptions,  (req, res, next) => {
   if (req.session.passport) {
     req.session.destroy();
     res.clearCookie('session-id');
@@ -178,7 +100,7 @@ router.get('/logout', (req, res, next) => {
 })
 
 router.delete('/logout', passport.authenticate('local'), (req, res, next) => {
-  User.remove({}) //remove all the dish
+  User.remove({}) //remove all the user
     .then((resp) => {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
