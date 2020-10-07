@@ -7,19 +7,20 @@ const favoriteSchema = new Schema({
         {
             type: Schema.Types.ObjectId,
             required: true,
-            unique: true,
-            ref: 'Dish'
+            ref: 'Dish',
+            // unique: false
         }
     ],
     user: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        unique: true,
+        required: true
     }
 },
     {
         timestamps: true
 
     })
-
-var Favorites = mongoose.model('Favorite', favoriteSchema);
+const Favorites = mongoose.model('Favorite', favoriteSchema);
 module.exports = Favorites;
