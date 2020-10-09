@@ -15,7 +15,7 @@ favoriteRouter.route('/')
         res.sendStatus(200) //equivalent to res.status(200).send('OK')
     })
     .get(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-        Favorites.findOne({user:req.user._id})
+        Favorites.findOne({ user: req.user._id })
             .populate('user')
             .populate('dishes') //if it doesn't find a corresponding id it won't populate it
             .then((favorites) => {
@@ -26,7 +26,7 @@ favoriteRouter.route('/')
             .catch((err) => next(err));
     })
     .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-        Favorites.findOne({user:req.user._id})
+        Favorites.findOne({ user: req.user._id })
             .then((favorite) => {
                 if (favorite) {
                     req.body.map((dishToAdd) => {
@@ -34,7 +34,14 @@ favoriteRouter.route('/')
                             favorite.dishes.push(dishToAdd._id)
                             favorite.save()
                                 .then((fav) => {
-                                    return res.status(200).json(fav)
+                                    Favorites.findById(fav._id)
+                                        .populate('user')
+                                        .populate('dish')
+                                        .then((fav) => {
+                                            return res.status(200).json(fav)
+                                        })
+                                        .catch(err => next(err))
+                                    // return res.status(200).json(fav)
                                 })
                                 .catch(err => next(err))
 
@@ -61,7 +68,13 @@ favoriteRouter.route('/')
                     })
                     Favorites.create({ dishes: newDishFav, user: req.user._id })
                         .then((Updatedfav) => {
-                            return res.status(200).json(Updatedfav)
+                            Favorites.findById(Updatedfav._id)
+                                .populate('user')
+                                .populate('dish')
+                                .then((fav) => {
+                                    return res.status(200).json(fav)
+                                })
+                                .catch(err => next(err))
                         })
                         .catch(err => next(err))
 
@@ -70,10 +83,10 @@ favoriteRouter.route('/')
     })
     .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
-        res.end(req.method + ' operation not supported on /favorites' );
+        res.end(req.method + ' operation not supported on /favorites');
     })
     .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-        Favorites.findOneAndDelete({user:req.user._id})
+        Favorites.findOneAndDelete({ user: req.user._id })
             .then((fav) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -88,19 +101,45 @@ favoriteRouter.route('/:dishId')
         res.sendStatus(200) //equivalent to res.status(200).send('OK')
     })
     .get(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-        res.statusCode = 403;
-        res.end(req.method + ' operation not supported on ' + req.params.dishId);
+        Favprites.findOne({ user: req.user._id })
+            .then((favorites) => {
+                if (!favorites) {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json')
+                    return res.json({ "exists": false, "favorites": favorites })
+                }
+                else {
+                    if (favorites.dishes.indexOf(req.params.dishId) < 0) {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json')
+                        return res.json({ "exists": false, "favorites": favorites })
+                    }
+                    else {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json')
+                        return res.json({ "exists": true, "favorites": favorites })
+                    }
+                }
+            })
+            .catch((err) => next(err))
     })
     .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-        const dishId = req.params.dishId
-        Favorites.findOne({user: req.user._id})
+        const dishId = req.params.dishId;
+        Favorites.findOne({ user: req.user._id })
             .then((fav) => {
                 if (fav) {
                     if (!fav.dishes.includes(dishId)) {
                         fav.dishes.push(dishId);
                         fav.save()
                             .then((Updatedfav) => {
-                                return res.status(200).json(Updatedfav)
+                                Favorites.findById(Updatedfav._id)
+                                    .populate('user')
+                                    .populate('dish')
+                                    .then((fav) => {
+                                        return res.status(200).json(fav)
+                                    })
+                                    .catch(err => next(err))
+                                // return res.status(200).json(Updatedfav)
                             })
                             .catch(err => next(err))
 
@@ -113,7 +152,14 @@ favoriteRouter.route('/:dishId')
                 else {
                     Favorites.create({ dishes: [dishId], user: req.user._id })
                         .then((Updatedfav) => {
-                            return res.status(200).json(Updatedfav)
+                            Favorites.findById(Updatedfav._id)
+                                .populate('user')
+                                .populate('dish')
+                                .then((fav) => {
+                                    return res.status(200).json(fav)
+                                })
+                                .catch(err => next(err))
+                            // return res.status(200).json(Updatedfav)
                         })
                         .catch(err => next(err));
 
@@ -128,7 +174,7 @@ favoriteRouter.route('/:dishId')
         res.end(req.method + ' operation not supported on ' + req.params.dishId);
     })
     .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
-        Favorites.findOne({user:req.user._id})
+        Favorites.findOne({ user: req.user._id })
             .then((favorite) => {
                 if (favorite.dishes.includes(req.params.dishId)) {
                     let filteredFavs = favorite.dishes.filter((fav) => !(fav.equals(req.params.dishId)));
@@ -136,16 +182,23 @@ favoriteRouter.route('/:dishId')
                     favorite.dishes = filteredFavs;
                     favorite.save()
                         .then((fav) => {
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            return res.json(fav);
+                            Favorites.findById(fav._id)
+                                .populate('user')
+                                .populate('dish')
+                                .then((fav) => {
+                                    return res.status(200).json(fav)
+                                })
+                                .catch(err => next(err))
+                            // res.statusCode = 200;
+                            // res.setHeader('Content-Type', 'application/json');
+                            // return res.json(fav);
                         })
-                        .catch((err) => next(err));  
+                        .catch((err) => next(err));
                 }
                 else {
-                    return res.status(304).json({status: "already deleted"});
+                    return res.status(304).json({ status: "already deleted" });
                 }
-                
+
             }, (err) => next(err))
             .catch((err) => next(err));
     });

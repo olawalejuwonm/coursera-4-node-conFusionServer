@@ -4,29 +4,29 @@ require('mongoose-currency').loadType(mongoose); //load currency type into mongo
 const Currency = mongoose.Types.Currency;
 
 
-const commentSchema = new Schema({
-    rating: {
-        type: Number,
-        min: 1,
-        max: 5,
-        required: true
-    },
-    comment: {
-        type: String,
-        required: true
-    },
-    author: {
-        type: mongoose.Schema.Types.ObjectId,//an object id need to be gotten same as object id of the ref
-         //this will add(populate) all entries(that are public) in the model defined below
-        ref: 'User' //model name     //this will make author required //if mistaken it will give an error that
-        //Schema hasn't been registered for model
-    },
+// const commentSchema = new Schema({
+//     rating: {
+//         type: Number,
+//         min: 1,
+//         max: 5,
+//         required: true
+//     },
+//     comment: {
+//         type: String,
+//         required: true
+//     },
+//     author: {
+//         type: mongoose.Schema.Types.ObjectId,//an object id need to be gotten same as object id of the ref
+//          //this will add(populate) all entries(that are public) in the model defined below
+//         ref: 'User' //model name     //this will make author required //if mistaken it will give an error that
+//         //Schema hasn't been registered for model
+//     },
     
-},
-{
-    timestamps: true
-}
-);
+// },
+// {
+//     timestamps: true
+// }
+// );
 
 const dishSchema = new Schema({
     name:{
@@ -59,7 +59,7 @@ const dishSchema = new Schema({
         type: Boolean,
         default: false
     },
-    comments: [ commentSchema ] //storing all documents about the dish in an array. Sub-document
+   // comments: [ commentSchema ] //storing all documents about the dish in an array. Sub-document
 },{
    timestamps: true 
 

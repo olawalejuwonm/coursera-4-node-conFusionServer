@@ -15,7 +15,7 @@ leaderRouter.route('/')
     res.sendStatus(200) //equivalent to res.status(200).send('OK')
 })
 .get(cors.cors, (req, res, next) => {
-    Leaderss.find({})
+    Leaders.find(req.query)
     .then((leaders) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
